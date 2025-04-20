@@ -1,70 +1,68 @@
-'use client'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+"use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
-import { ImagePlus, X } from "lucide-react"
-import Navbar from "@/components/Navbar"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { ImagePlus, X } from "lucide-react";
+// import Navbar from "@/components/Navbar"
+import { Checkbox } from "@/components/ui/checkbox";
 
-import { useQuery } from "@apollo/client"
-
-
+// import { useQuery } from "@apollo/client"
 
 export default function CreateListing() {
-  const [selectedImages, setSelectedImages] = useState<File[]>([])
-  const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [listingTypes, setListingTypes] = useState({
     forSale: false,
     forTrade: false,
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    setSelectedImages(prev => [...prev, ...files])
-    
+    const files = Array.from(e.target.files || []);
+    setSelectedImages((prev) => [...prev, ...files]);
+
     // Create preview URLs
-    const newPreviewUrls = files.map(file => URL.createObjectURL(file))
-    setPreviewUrls(prev => [...prev, ...newPreviewUrls])
-  }
+    const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
+    setPreviewUrls((prev) => [...prev, ...newPreviewUrls]);
+  };
 
   const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index))
-    setPreviewUrls(prev => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => {
       // Revoke the URL to prevent memory leaks
-      URL.revokeObjectURL(prev[index])
-      return prev.filter((_, i) => i !== index)
-    })
-  }
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // TODO: Handle form submission
-    console.log('Form submitted', {
+    console.log("Form submitted", {
       listingTypes,
       selectedImages,
       // ... other form data
-    })
-  }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      {/* <Navbar /> */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         <Card>
           <CardHeader>
@@ -99,7 +97,9 @@ export default function CreateListing() {
                     <div className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center">
                       <label className="cursor-pointer flex flex-col items-center">
                         <ImagePlus className="w-8 h-8 text-gray-400" />
-                        <span className="text-sm text-gray-500 mt-2">Add Photo</span>
+                        <span className="text-sm text-gray-500 mt-2">
+                          Add Photo
+                        </span>
                         <input
                           type="file"
                           accept="image/*"
@@ -139,8 +139,17 @@ export default function CreateListing() {
               <div className="space-y-2">
                 <Label htmlFor="price">Price/Value</Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
-                  <Input id="price" type="number" min="0" step="0.01" className="pl-7" placeholder="0.00" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2">
+                    $
+                  </span>
+                  <Input
+                    id="price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="pl-7"
+                    placeholder="0.00"
+                  />
                 </div>
               </div>
 
@@ -149,11 +158,14 @@ export default function CreateListing() {
                 <Label>Listing Type</Label>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="forSale" 
+                    <Checkbox
+                      id="forSale"
                       checked={listingTypes.forSale}
-                      onCheckedChange={(checked: boolean | "indeterminate") => 
-                        setListingTypes(prev => ({ ...prev, forSale: checked === true }))
+                      onCheckedChange={(checked: boolean | "indeterminate") =>
+                        setListingTypes((prev) => ({
+                          ...prev,
+                          forSale: checked === true,
+                        }))
                       }
                     />
                     <label
@@ -164,11 +176,14 @@ export default function CreateListing() {
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="forTrade" 
+                    <Checkbox
+                      id="forTrade"
                       checked={listingTypes.forTrade}
-                      onCheckedChange={(checked: boolean | "indeterminate") => 
-                        setListingTypes(prev => ({ ...prev, forTrade: checked === true }))
+                      onCheckedChange={(checked: boolean | "indeterminate") =>
+                        setListingTypes((prev) => ({
+                          ...prev,
+                          forTrade: checked === true,
+                        }))
                       }
                     />
                     <label
@@ -198,8 +213,8 @@ export default function CreateListing() {
               </div>
 
               {/* Submit Button */}
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full"
                 disabled={!listingTypes.forSale && !listingTypes.forTrade}
               >
@@ -210,5 +225,5 @@ export default function CreateListing() {
         </Card>
       </main>
     </div>
-  )
-} 
+  );
+}
