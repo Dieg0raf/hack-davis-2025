@@ -3,6 +3,7 @@ import * as React from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Checkbox } from "@/components/ui/checkbox"
 import Profile from "@/components/Profile"
 import {
   Carousel,
@@ -17,6 +18,11 @@ type ListingContentProps = {
 }
 
 export default function ListingContent({ id }: ListingContentProps) {
+  const [listingTypes, setListingTypes] = React.useState({
+    forSale: false,
+    forTrade: false,
+  });
+
   return (
     <div className="bg-white shadow rounded-lg p-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -50,10 +56,37 @@ export default function ListingContent({ id }: ListingContentProps) {
             <h1 className="text-3xl font-bold text-gray-900">
               Sonny Angel Name #{id}
             </h1>
-            <div className="mt-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                Available
-              </span>
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="forSale" 
+                  checked={listingTypes.forSale}
+                  onCheckedChange={(checked: boolean | "indeterminate") => 
+                    setListingTypes(prev => ({ ...prev, forSale: checked === true }))
+                  }
+                />
+                <label
+                  htmlFor="forSale"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  For Sale
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="forTrade" 
+                  checked={listingTypes.forTrade}
+                  onCheckedChange={(checked: boolean | "indeterminate") => 
+                    setListingTypes(prev => ({ ...prev, forTrade: checked === true }))
+                  }
+                />
+                <label
+                  htmlFor="forTrade"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  For Trade
+                </label>
+              </div>
             </div>
           </div>
 
@@ -70,12 +103,16 @@ export default function ListingContent({ id }: ListingContentProps) {
           </div>
 
           <div className="flex gap-4 pt-6">
-            <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-              Buy Now
-            </Button>
-            <Button variant="outline" className="flex-1">
-              Send Trade Offer
-            </Button>
+            {listingTypes.forSale && (
+              <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                Buy Now
+              </Button>
+            )}
+            {listingTypes.forTrade && (
+              <Button variant="outline" className="flex-1">
+                Send Trade Offer
+              </Button>
+            )}
           </div>
         </div>
       </div>
