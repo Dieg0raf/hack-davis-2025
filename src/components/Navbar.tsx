@@ -49,6 +49,7 @@ export default function Navbar() {
                   <NavigationMenuItem>
                     <Button variant="outline" onClick={() => {
                       window.location.href = "/create"
+           
                     }}>Sell Now</Button>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
