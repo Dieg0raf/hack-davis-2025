@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   NavigationMenu,
   NavigationMenuItem,
-  NavigationMenuLink,
+  // NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { Input } from "@/components/ui/input";
@@ -69,7 +69,10 @@ export default function Navbar() {
         <div className="flex-grow max-w-xl mx-4">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search items..." className="w-full pl-10 rounded-full border-gray-700" />
+            <Input
+              placeholder="Search items..."
+              className="w-full pl-10 rounded-full border-gray-700"
+            />
           </div>
         </div>
 
@@ -81,18 +84,30 @@ export default function Navbar() {
                 <SignedIn>
                   <NavigationMenuItem>
                     <Link href="/events" passHref>
-                      <Button variant="outline" className="rounded-full bg-white border-gray-700 text-gray-700">Community Events</Button>
+                      <Button
+                        variant="outline"
+                        className="rounded-full bg-white border-gray-700 text-gray-700"
+                      >
+                        Community Events
+                      </Button>
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     <Link href={profileLink} passHref>
-                      <Button variant="outline" className="rounded-full bg-white border-gray-700 text-gray-700">Profile</Button>
+                      <Button
+                        variant="outline"
+                        className="rounded-full bg-white border-gray-700 text-gray-700"
+                      >
+                        Profile
+                      </Button>
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     {/* Use the dynamic createLink instead of hardcoded "/create" */}
                     <Link href={createLink} passHref>
-                      <Button className="rounded-full bg-[#FFA6BD] hover:bg-[#ff8fab] text-gray-700 border-gray-700">Sell Now</Button>
+                      <Button className="rounded-full bg-[#FFA6BD] hover:bg-[#ff8fab] text-gray-700 border-gray-700">
+                        Sell Now
+                      </Button>
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
@@ -103,21 +118,30 @@ export default function Navbar() {
                 {/* Show these components when user is signed out */}
                 <SignedOut>
                   <NavigationMenuItem>
-                    <Link href="/create" legacyBehavior passHref>
-                      <Button className="rounded-full bg-[#FFA6BD] hover:bg-[#ff8fab] text-gray-700 border-gray-700 mr-2" asChild>
+                    {/* <Link href="/create" legacyBehavior passHref>
+                      <Button
+                        className="rounded-full bg-[#FFA6BD] hover:bg-[#ff8fab] text-gray-700 border-gray-700 mr-2"
+                        asChild
+                      >
                         <NavigationMenuLink>Sell Now</NavigationMenuLink>
                       </Button>
-                    </Link>
+                    </Link> */}
 
                     <SignUpButton mode="modal">
-                      <Button variant="outline" className="rounded-full bg-white border-gray-700 text-gray-700 mr-2">
+                      <Button
+                        variant="outline"
+                        className="rounded-full bg-[#FFA6BD] hover:bg-[#ff8fab] border-gray-700 text-gray-700 mr-2"
+                      >
                         Sign Up
                       </Button>
                     </SignUpButton>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     <SignInButton mode="modal">
-                      <Button variant="outline" className="rounded-full bg-white border-gray-700 text-gray-700">
+                      <Button
+                        variant="outline"
+                        className="rounded-full bg-white border-gray-700 text-gray-700"
+                      >
                         Login
                       </Button>
                     </SignInButton>

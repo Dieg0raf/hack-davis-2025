@@ -19,6 +19,7 @@ type ListingContentProps = {
     description: string;
     product?: {
       name?: string;
+      series?: string;
     };
   }; // Define a proper type for listing
   profile: {
@@ -246,7 +247,7 @@ export default function ListingContent({
 
               <div>
                 <div className="font-bold text-gray-700">ISO:</div>
-                <div>{listing.product.series}</div>
+                <div>{listing.product?.series}</div>
               </div>
 
               <div>
