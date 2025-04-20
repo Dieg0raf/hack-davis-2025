@@ -1,18 +1,11 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  // url      = env("DATABASE_URL")
-  url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -22,8 +15,8 @@ model User {
   clerkId     String   @unique @map("clerk_id")
   username    String   @unique
   phoneNumber String?  @map("phone_number")
-  profile     Profile?
   orders      Order[]
+  profile     Profile?
 
   @@map("users")
 }
@@ -41,10 +34,10 @@ model SonnyAngelProduct {
 model Profile {
   id                 String    @id @default(uuid())
   userId             String    @unique @map("user_id")
-  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   starRating         Float?    @map("star_rating")
   amountProductsSold Int       @default(0) @map("amount_of_products_sold")
   listings           Listing[] @relation("ProfileListings")
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   cart               Listing[] @relation("ProfileCart")
   favorites          Listing[] @relation("ProfileFavorites")
 
@@ -54,27 +47,27 @@ model Profile {
 model Listing {
   id          String            @id @default(uuid())
   productId   String            @map("product_id")
-  product     SonnyAngelProduct @relation(fields: [productId], references: [id])
   listerId    String            @map("lister_id")
-  lister      Profile           @relation("ProfileListings", fields: [listerId], references: [id])
-  colors      String[] // Array of colors from US-caption colors
+  colors      String[]
   description String
-  price       Decimal?          @db.Decimal(10, 2) // Optional price field
-  status      String // e.g., "active", "sold", "pending"
+  price       Decimal?          @db.Decimal(10, 2)
+  status      String
+  imageUrls   String[]
+  lister      Profile           @relation("ProfileListings", fields: [listerId], references: [id])
+  product     SonnyAngelProduct @relation(fields: [productId], references: [id])
+  orders      Order[]           @relation("OrderListings")
   inCarts     Profile[]         @relation("ProfileCart")
   inFavorites Profile[]         @relation("ProfileFavorites")
-  orders      Order[]           @relation("OrderListings")
-  imageUrls   String[]
 
   @@map("listings")
 }
 
 model Order {
   id       String    @id @default(uuid())
-  listings Listing[] @relation("OrderListings") // Many-to-many relation
-  status   String // e.g., "pending", "on the way", etc.
-  user     User?     @relation(fields: [userId], references: [id])
+  status   String
   userId   String?
+  user     User?     @relation(fields: [userId], references: [id])
+  listings Listing[] @relation("OrderListings")
 
   @@map("orders")
 }

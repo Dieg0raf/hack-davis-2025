@@ -78,7 +78,6 @@ export default function Navbar() {
 //                         <NavigationMenuLink>Sell Now</NavigationMenuLink>
 //                       </Button>
 //                     </Link>
-
 //                     <SignUpButton mode="modal">
 //                       <Button variant="outline" className="mr-2">
 //                         Sign Up
@@ -99,3 +98,4 @@ export default function Navbar() {
 //     </div>
 //   );
 // }
+

@@ -10,6 +10,10 @@ import { typeDefs, resolvers } from "./index"
 const server = new ApolloServer({
     typeDefs,
     resolvers,
+    formatError: (err) => {
+        console.error("GraphQL Error:", err);
+        return err;
+    },
 });
 
 // Apollo Server validates requests and sends them to the appropriate resolver.
