@@ -33,3 +33,5 @@ yarn-error.log*
 .env.production.local
 
 UserList.tsx
+# clerk configuration (can include secrets)
+/.clerk/
