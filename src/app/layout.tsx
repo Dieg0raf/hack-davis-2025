@@ -2,9 +2,15 @@ import "./globals.css";
 import { ApolloWrapper } from "@/lib/apollo-provider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Auth0Provider } from '@auth0/nextjs-auth0';
-
-
+// import { Auth0Provider } from "@auth0/nextjs-auth0";
+import {
+  ClerkProvider,
+  // SignInButton,
+  // SignUpButton,
+  // SignedIn,
+  // SignedOut,
+  // UserButton,
+} from "@clerk/nextjs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,15 +37,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Auth0Provider>
-          <ApolloWrapper>
-
-            {children}
-
-          </ApolloWrapper>
-
-        </Auth0Provider>
-
+        {/* <Auth0Provider> */}
+        <ClerkProvider>
+          <ApolloWrapper>{children}</ApolloWrapper>
+        </ClerkProvider>
+        {/* </Auth0Provider> */}
       </body>
     </html>
   );
