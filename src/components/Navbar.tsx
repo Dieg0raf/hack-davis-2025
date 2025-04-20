@@ -9,21 +9,19 @@ import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useUser } from '@auth0/nextjs-auth0'
+import Image from "next/image"
 
 export default function Navbar() {
   const { user } = useUser()
 
   return (
     <div className="w-full bg-white shadow-sm sticky top-0 z-50">
-      <NavigationMenu className="w-full">
-        <div className="flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex">
-            <NavigationMenuLink className="text-2xl font-bold text-gray-900">
-              Logo
-            </NavigationMenuLink>
-          </div>
+      <div className="flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8 w-full">
+        <div className="flex items-center">
+          <Image src="/SonnySwapLogo.png" alt="Logo" width={200} height={200} />
+        </div>
 
-          <div className="flex-grow max-w-xl mx-4">
+        <div className="flex-grow max-w-xl mx-4">
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               <Input
@@ -32,18 +30,26 @@ export default function Navbar() {
               />
             </div>
           </div>
+        <NavigationMenu className="w-full">
+        <div className="flex items-center h-16 px-4 sm:px-6 lg:px-8 w-full">
+
           
           <div className="flex justify-between items-center gap-4">
             <NavigationMenuList className="flex items-center space-x-4">
               {user ? (
                 <>
                   <NavigationMenuItem>
-                    <Button>My Listings</Button>
+                    <Button>Comunity Events?</Button>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     <Button variant="outline" onClick={() => {
                       window.location.href = "/profile"
                     }}>Profile</Button> 
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Button variant="outline" onClick={() => {
+                      window.location.href = "/create"
+                    }}>Sell Now</Button>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     <Button variant="outline" onClick={() => {
@@ -68,6 +74,7 @@ export default function Navbar() {
           </div>
         </div>
       </NavigationMenu>
+      </div>
     </div>
   )
 } 
