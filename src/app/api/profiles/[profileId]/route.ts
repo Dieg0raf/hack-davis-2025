@@ -134,7 +134,7 @@ export async function GET(
     request: NextRequest,
     { params }: { params: { profileId: string } }
 ) {
-    const profileId = params.profileId;
+    const profileId = await params.profileId;
 
     if (!profileId) {
         return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
