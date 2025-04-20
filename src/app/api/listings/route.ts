@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../../prisma/prisma';
 import { Prisma } from '@prisma/client';
+import { cloudinary } from '../../../lib/cloudinary';
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    
+
     // Get text fields
     const productId = formData.get('productId') as string;
     const listerId = formData.get('listerId') as string;
@@ -26,10 +27,35 @@ export async function POST(request: Request) {
     const imageFiles = formData.getAll('images') as File[];
     const imageUrls: string[] = [];
 
-    // TODO: Upload images to your storage service (e.g., AWS S3, Cloudinary)
-    // For now, we'll just store the file names
+    // Upload images to Cloudinary
     for (const file of imageFiles) {
-      imageUrls.push(file.name);
+      // Convert File to base64 (fastest way)
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64 = buffer.toString('base64');
+      const dataURI = `data:${file.type};base64,${base64}`;
+
+      // Upload to Cloudinary
+      interface CloudinaryUploadResult {
+        secure_url: string;
+      }
+
+      const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
+        cloudinary.uploader.upload(
+          dataURI,
+          {
+            folder: 'sonny-angels',
+            resource_type: 'auto',
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result as CloudinaryUploadResult);
+          }
+        );
+      });
+
+      // Add secure URL to our array
+      imageUrls.push(result.secure_url);
     }
 
     // Verify the product exists
@@ -65,7 +91,7 @@ export async function POST(request: Request) {
         description,
         price,
         status,
-        imageUrls,
+        imageUrls, // These are now URLs from Cloudinary
       },
       include: {
         product: true,
@@ -76,10 +102,10 @@ export async function POST(request: Request) {
     return NextResponse.json(listing, { status: 201 });
   } catch (error) {
     console.error('Error creating listing:', error);
-    
+
     // Return more detailed error information
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to create listing',
         details: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined
@@ -87,4 +113,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}
