@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Minus, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs";
 
 export default function CartPage() {
   const [cartCount, setCartCount] = useState(0);
@@ -44,46 +45,53 @@ export default function CartPage() {
   };
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
-      <div className="text-lg space-y-4">
-        {cartCount === 0 ? (
-          <p>Your cart is empty</p>
-        ) : (
-          <>
-            <p>You have {cartCount} item{cartCount !== 1 ? 's' : ''} in your cart</p>
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={removeItem}
-                className="border-gray-700"
-              >
-                <Minus className="h-4 w-4 text-gray-700" />
-              </Button>
-              <span>Remove Item</span>
+    <>
+      <SignedIn>
+        <div className="container mx-auto p-8">
+          <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
+          <div className="text-lg space-y-4">
+            {cartCount === 0 ? (
+              <p>Your cart is empty</p>
+            ) : (
+              <>
+                <p>You have {cartCount} item{cartCount !== 1 ? 's' : ''} in your cart</p>
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={removeItem}
+                    className="border-gray-700"
+                  >
+                    <Minus className="h-4 w-4 text-gray-700" />
+                  </Button>
+                  <span>Remove Item</span>
+                </div>
+              </>
+            )}
+            <div className="mt-8 flex gap-4">
+              <Link href="/">
+                <Button 
+                  variant="outline"
+                  className="border-gray-700 text-gray-700"
+                >
+                  Continue Shopping
+                </Button>
+              </Link>
+              {cartCount > 0 && (
+                <Button 
+                  className="bg-[#FFA6BD] hover:bg-[#FF8CAB] text-white border-gray-700 flex items-center gap-2"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  Checkout
+                </Button>
+              )}
             </div>
-          </>
-        )}
-        <div className="mt-8 flex gap-4">
-          <Link href="/">
-            <Button 
-              variant="outline"
-              className="border-gray-700 text-gray-700"
-            >
-              Continue Shopping
-            </Button>
-          </Link>
-          {cartCount > 0 && (
-            <Button 
-              className="bg-[#FFA6BD] hover:bg-[#FF8CAB] text-white border-gray-700 flex items-center gap-2"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              Checkout
-            </Button>
-          )}
+          </div>
         </div>
-      </div>
-    </div>
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </>
   );
 } 

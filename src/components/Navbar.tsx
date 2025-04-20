@@ -97,9 +97,12 @@ export default function Navbar() {
             <div className="flex justify-between items-center gap-4">
               <NavigationMenuList className="flex items-center space-x-4">
                 {/* Cart Icon - Always visible */}
+                <SignedIn>
                 <NavigationMenuItem>
                   <Link href="/cart" className="relative">
                     <Button variant="ghost" className="rounded-full p-2">
+        
+                    
                       <ShoppingCart className="h-20 w-20 text-gray-700" />
                       {cartCount > 0 && (
                         <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
@@ -109,7 +112,7 @@ export default function Navbar() {
                     </Button>
                   </Link>
                 </NavigationMenuItem>
-
+                </SignedIn>
                 {/* Show these components when user is signed in */}
                 <SignedIn>
                   <NavigationMenuItem>
