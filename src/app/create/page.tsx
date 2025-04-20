@@ -17,18 +17,73 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ImagePlus, X } from "lucide-react"
 import Navbar from "@/components/Navbar"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useRouter } from "next/navigation"
 
-export default function CreateListing() {
+function CreateListingContent() {
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [selectedSeries, setSelectedSeries] = useState<string>("")
+  const [selectedProduct, setSelectedProduct] = useState<string>("")
   const [listingTypes, setListingTypes] = useState({
     forSale: false,
     forTrade: false,
-  });
+  })
+  const [series, setSeries] = useState<Array<{ series: string; year: number }>>([])
+  const [products, setProducts] = useState<Array<{ id: string; name: string; series: string }>>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [name, setName] = useState("")
+  const [color, setColor] = useState("#000000")
+  const [description, setDescription] = useState("")
+  const [price, setPrice] = useState<string>("")
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [seriesResponse, productsResponse] = await Promise.all([
+          fetch('/api/products/series'),
+          fetch('/api/products')
+        ]);
+
+        if (!seriesResponse.ok) {
+          throw new Error(`Failed to fetch series: ${seriesResponse.statusText}`);
+        }
+
+        if (!productsResponse.ok) {
+          throw new Error(`Failed to fetch products: ${productsResponse.statusText}`);
+        }
+
+        const [seriesData, productsData] = await Promise.all([
+          seriesResponse.json(),
+          productsResponse.json()
+        ]);
+
+        if (!Array.isArray(seriesData) || !Array.isArray(productsData)) {
+          throw new Error('Invalid data format received from server');
+        }
+
+        setSeries(seriesData);
+        setProducts(productsData);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Filter products based on selected series
+  const filteredProducts = products.filter(product => product.series === selectedSeries)
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -48,15 +103,80 @@ export default function CreateListing() {
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // TODO: Handle form submission
-    console.log('Form submitted', {
-      listingTypes,
-      selectedImages,
-      // ... other form data
-    })
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      if (!selectedProduct) {
+        throw new Error('Please select a product');
+      }
+
+      if (!description.trim()) {
+        throw new Error('Please add a description');
+      }
+
+      // Create FormData for the request
+      const formData = new FormData();
+      formData.append('productId', selectedProduct);
+      formData.append('listerId', 'dummy-profile-id'); // Using the dummy profile ID
+      formData.append('description', description);
+      formData.append('price', price || '0.00');
+      formData.append('status', 'active');
+      formData.append('colors', JSON.stringify([color]));
+      
+      // Add each image file to FormData
+      selectedImages.forEach((file, index) => {
+        formData.append(`images`, file);
+      });
+
+      const response = await fetch('/api/listings', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create listing');
+      }
+
+      const data = await response.json();
+      console.log('Listing created:', data);
+
+      // Redirect to the listing page
+      router.push(`/listings/${data.id}`);
+    } catch (err) {
+      console.error('Error creating listing:', err);
+      setSubmitError(err instanceof Error ? err.message : 'Failed to create listing');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading series...</p>
+      </div>
+    </div>
+  )
+
+  if (error) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Series</h2>
+        <p className="text-gray-600 mb-4">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Try Again
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,7 +191,7 @@ export default function CreateListing() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Image Upload */}
+              {/* Photo Upload */}
               <div className="space-y-2">
                 <Label>Photos</Label>
                 <div className="grid grid-cols-4 gap-4">
@@ -112,31 +232,56 @@ export default function CreateListing() {
               {/* Series Selection */}
               <div className="space-y-2">
                 <Label htmlFor="series">Series</Label>
-                <Select>
+                <Select value={selectedSeries} onValueChange={(value) => {
+                  setSelectedSeries(value)
+                  setSelectedProduct("") // Reset product selection when series changes
+                }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a series" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="christmas">Christmas Series</SelectItem>
-                    <SelectItem value="halloween">Halloween Series</SelectItem>
-                    <SelectItem value="animal">Animal Series</SelectItem>
-                    <SelectItem value="fruit">Fruit Series</SelectItem>
+                    {series.map((item) => (
+                      <SelectItem key={item.series} value={item.series}>
+                        {item.series} ({item.year})
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Name */}
+              {/* Product Selection */}
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" placeholder="Enter Sonny Angel name" />
+                <Label htmlFor="product">Product</Label>
+                <Select 
+                  value={selectedProduct} 
+                  onValueChange={setSelectedProduct}
+                  disabled={!selectedSeries}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredProducts.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Price/Value */}
+              {/* Color Picker */}
               <div className="space-y-2">
-                <Label htmlFor="price">Price/Value</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
-                  <Input id="price" type="number" min="0" step="0.01" className="pl-7" placeholder="0.00" />
+                <Label htmlFor="color">Color</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="color"
+                    id="color"
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
+                    className="h-10 w-20 p-1"
+                  />
+                  <span className="text-sm text-gray-500">{color}</span>
                 </div>
               </div>
 
@@ -145,10 +290,10 @@ export default function CreateListing() {
                 <Label>Listing Type</Label>
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="forSale" 
+                    <Checkbox
+                      id="forSale"
                       checked={listingTypes.forSale}
-                      onCheckedChange={(checked: boolean | "indeterminate") => 
+                      onCheckedChange={(checked) =>
                         setListingTypes(prev => ({ ...prev, forSale: checked === true }))
                       }
                     />
@@ -160,10 +305,10 @@ export default function CreateListing() {
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="forTrade" 
+                    <Checkbox
+                      id="forTrade"
                       checked={listingTypes.forTrade}
-                      onCheckedChange={(checked: boolean | "indeterminate") => 
+                      onCheckedChange={(checked) =>
                         setListingTypes(prev => ({ ...prev, forTrade: checked === true }))
                       }
                     />
@@ -177,34 +322,58 @@ export default function CreateListing() {
                 </div>
               </div>
 
-              {/* Color Picker */}
-              <div className="space-y-2">
-                <Label htmlFor="color">Color</Label>
-                <Input type="color" id="color" className="h-10 w-20" />
-              </div>
-
               {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   placeholder="Add any additional details about your Sonny Angel..."
                   className="min-h-[100px]"
                 />
               </div>
 
+              {/* Price Input */}
+              <div className="space-y-2">
+                <Label htmlFor="price">Price</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
+                  <Input
+                    id="price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="pl-7"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
               {/* Submit Button */}
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full"
-                disabled={!listingTypes.forSale && !listingTypes.forTrade}
+                disabled={!listingTypes.forSale && !listingTypes.forTrade || submitting}
               >
-                Create Listing
+                {submitting ? 'Creating Listing...' : 'Create Listing'}
               </Button>
+
+              {submitError && (
+                <div className="text-red-500 text-sm text-center">
+                  {submitError}
+                </div>
+              )}
             </form>
           </CardContent>
         </Card>
       </main>
     </div>
   )
+}
+
+export default function CreateListing() {
+  return <CreateListingContent />
 } 
