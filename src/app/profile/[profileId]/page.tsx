@@ -137,7 +137,7 @@ export default function ProfilePage() {
     };
 
     return (
-      <Link href={`/listings/${listing.id}`}>
+      <Link href={`/profile/${profileId}/listing/${listing.id}`}>
         <div className="p-1 cursor-pointer">
           <Card className="border-2 hover:shadow-md transition-shadow">
             <CardContent className="p-0">
