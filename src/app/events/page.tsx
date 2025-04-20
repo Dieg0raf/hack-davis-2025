@@ -53,7 +53,7 @@ export default function EventsPage() {
       {/* Hero Section */}
       <div className="relative w-full h-[40vh] md:h-[50vh] lg:h-[60vh]">
         <Image
-          src="/sonyHero.webp"
+          src="/sonnybanner.avif"
           alt="Sonny Angel Events"
           fill
           className="object-cover"

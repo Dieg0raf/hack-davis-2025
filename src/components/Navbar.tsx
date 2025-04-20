@@ -7,7 +7,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   SignInButton,
@@ -23,6 +23,22 @@ import Link from "next/link";
 export default function Navbar() {
   const { user } = useUser();
   const [profileId, setProfileId] = useState<string | null>(null);
+  const [cartCount, setCartCount] = useState(0);
+
+  // Load initial cart count
+  useEffect(() => {
+    const count = parseInt(localStorage.getItem('cartCount') || '0');
+    setCartCount(count);
+
+    // Listen for cart updates
+    const handleCartUpdate = () => {
+      const newCount = parseInt(localStorage.getItem('cartCount') || '0');
+      setCartCount(newCount);
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+  }, []);
 
   // Fetch profile ID when user loads
   useEffect(() => {
@@ -77,6 +93,20 @@ export default function Navbar() {
           <div className="flex items-center h-20 px-4 sm:px-6 lg:px-8 w-full">
             <div className="flex justify-between items-center gap-4">
               <NavigationMenuList className="flex items-center space-x-4">
+                {/* Cart Icon - Always visible */}
+                <NavigationMenuItem>
+                  <Link href="/cart" className="relative">
+                    <Button variant="ghost" className="rounded-full p-2">
+                      <ShoppingCart className="h-20 w-20 text-gray-700" />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+                          {cartCount}
+                        </span>
+                      )}
+                    </Button>
+                  </Link>
+                </NavigationMenuItem>
+
                 {/* Show these components when user is signed in */}
                 <SignedIn>
                   <NavigationMenuItem>
