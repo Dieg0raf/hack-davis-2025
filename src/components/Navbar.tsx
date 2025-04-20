@@ -54,7 +54,7 @@ export default function Navbar() {
 
   return (
     <div className="w-full bg-white shadow-sm sticky top-0 z-50">
-      <div className="flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8 w-full">
+      <div className="flex justify-between items-center h-20 px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center">
           <Link href="/">
             <Image
@@ -69,30 +69,30 @@ export default function Navbar() {
         <div className="flex-grow max-w-xl mx-4">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search items..." className="w-full pl-10" />
+            <Input placeholder="Search items..." className="w-full pl-10 rounded-full border-gray-700" />
           </div>
         </div>
 
         <NavigationMenu className="w-full">
-          <div className="flex items-center h-16 px-4 sm:px-6 lg:px-8 w-full">
+          <div className="flex items-center h-20 px-4 sm:px-6 lg:px-8 w-full">
             <div className="flex justify-between items-center gap-4">
               <NavigationMenuList className="flex items-center space-x-4">
                 {/* Show these components when user is signed in */}
                 <SignedIn>
                   <NavigationMenuItem>
                     <Link href="/events" passHref>
-                      <Button>Community Events</Button>
+                      <Button variant="outline" className="rounded-full bg-white border-gray-700 text-gray-700">Community Events</Button>
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     <Link href={profileLink} passHref>
-                      <Button variant="outline">Profile</Button>
+                      <Button variant="outline" className="rounded-full bg-white border-gray-700 text-gray-700">Profile</Button>
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     {/* Use the dynamic createLink instead of hardcoded "/create" */}
                     <Link href={createLink} passHref>
-                      <Button variant="outline">Sell Now</Button>
+                      <Button className="rounded-full bg-[#FFA6BD] hover:bg-[#ff8fab] text-gray-700 border-gray-700">Sell Now</Button>
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
@@ -104,20 +104,22 @@ export default function Navbar() {
                 <SignedOut>
                   <NavigationMenuItem>
                     <Link href="/create" legacyBehavior passHref>
-                      <Button className="mr-2" asChild>
+                      <Button className="rounded-full bg-[#FFA6BD] hover:bg-[#ff8fab] text-gray-700 border-gray-700 mr-2" asChild>
                         <NavigationMenuLink>Sell Now</NavigationMenuLink>
                       </Button>
                     </Link>
 
                     <SignUpButton mode="modal">
-                      <Button variant="outline" className="mr-2">
+                      <Button variant="outline" className="rounded-full bg-white border-gray-700 text-gray-700 mr-2">
                         Sign Up
                       </Button>
                     </SignUpButton>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     <SignInButton mode="modal">
-                      <Button variant="outline">Login</Button>
+                      <Button variant="outline" className="rounded-full bg-white border-gray-700 text-gray-700">
+                        Login
+                      </Button>
                     </SignInButton>
                   </NavigationMenuItem>
                 </SignedOut>
