@@ -6,6 +6,8 @@ import {
   MessageCircle,
   ChevronLeft,
   ChevronRight,
+  Loader2,
+  ShoppingCart,
   //   Share2,
 } from "lucide-react";
 import Link from "next/link";
@@ -38,6 +40,11 @@ export default function ListingContent({
   const [offersSent] = React.useState(Math.floor(Math.random() * 8) + 1); // Random number between 1-8
   const [cartsCount] = React.useState(Math.floor(Math.random() * 5) + 1); // Random number between 1-5
   const [isPopular] = React.useState(Math.random() > 0.3); // 70% chance of being popular
+  const [isTradeLoading, setIsTradeLoading] = React.useState(false);
+  const [tradeStatus, setTradeStatus] = React.useState<'initial' | 'pending'>('initial');
+  const [messageStatus, setMessageStatus] = React.useState<'initial' | 'copied'>('initial');
+  const [isAddingToCart, setIsAddingToCart] = React.useState(false);
+  const [isInCart, setIsInCart] = React.useState(false);
   //   const isTrade = listing.price === null || listing.price === 0;
 
   // Make sure we have image URLs
@@ -94,6 +101,43 @@ export default function ListingContent({
       imageUrl: "/f913e53a57a657ff3512453336584da8.jpg",
     },
   ];
+
+  const handleTradeOffer = async () => {
+    setIsTradeLoading(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsTradeLoading(false);
+    setTradeStatus('pending');
+  };
+
+  const handleMessage = async () => {
+    const contactInfo = `Contact ${profile.user?.name || 'Seller'} about ${listing.product?.name || 'this item'}`;
+    
+    try {
+      await navigator.clipboard.writeText(contactInfo);
+      setMessageStatus('copied');
+      setTimeout(() => setMessageStatus('initial'), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
+
+  // Function to update cart count in localStorage
+  const updateCartCount = () => {
+    const currentCount = parseInt(localStorage.getItem('cartCount') || '0');
+    localStorage.setItem('cartCount', (currentCount + 1).toString());
+    // Dispatch custom event to notify navbar
+    window.dispatchEvent(new Event('cartUpdated'));
+  };
+
+  const handleAddToCart = async () => {
+    setIsAddingToCart(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setIsAddingToCart(false);
+    setIsInCart(true);
+    updateCartCount();
+  };
 
   return (
     <>
@@ -212,28 +256,66 @@ export default function ListingContent({
 
             {/* Seller and Buy buttons */}
             <div className="mt-4 space-y-2 max-w-xs mx-auto md:mx-0">
-              {/* Seller button */}
-              <button className="w-full bg-pink-400 text-white py-2 px-4 rounded-full font-medium flex items-center justify-center space-x-2 hover:bg-pink-500 border border-pink-500 shadow-sm">
+              {/* Message button */}
+              <button 
+                onClick={handleMessage}
+                className="w-full bg-pink-400 text-white py-2 px-4 rounded-full font-medium flex items-center justify-center space-x-2 hover:bg-pink-500 border border-pink-500 shadow-sm"
+              >
                 <Avatar className="h-6 w-6 border-2 border-white">
-                  <AvatarImage
-                    src={profile.user?.image}
-                    alt={profile.user?.name}
-                  />
+                  <AvatarImage src={profile.user?.image} alt={profile.user?.name} />
                   <AvatarFallback className="bg-purple-700 text-white text-xs">
                     {profile.user?.name?.charAt(0) || "J"}
                   </AvatarFallback>
                 </Avatar>
-                <span className="ml-2">Message</span>
+                <span className="ml-2">
+                  {messageStatus === 'copied' ? 'Info Copied!' : 'Message'}
+                </span>
               </button>
 
               {/* Trade offer button */}
-              <button className="w-full bg-blue-400 text-white py-2 px-4 rounded-full font-medium hover:bg-blue-500 border border-blue-500 shadow-sm">
-                Send Trade Offer
+              <button 
+                onClick={handleTradeOffer}
+                disabled={isTradeLoading || tradeStatus === 'pending'}
+                className={`w-full py-2 px-4 rounded-full font-medium shadow-sm flex items-center justify-center ${
+                  tradeStatus === 'pending'
+                    ? 'bg-gray-200 text-gray-700 border border-gray-300'
+                    : 'bg-blue-400 text-white hover:bg-blue-500 border border-blue-500'
+                }`}
+              >
+                {isTradeLoading && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
+                {isTradeLoading ? 'Sending...' : 
+                 tradeStatus === 'pending' ? 'Offer Sent' : 
+                 'Send Trade Offer'}
               </button>
 
               {/* Add to cart button */}
-              <button className="w-full bg-white border border-gray-300 py-2 px-4 rounded-full font-medium hover:bg-gray-50 shadow-sm">
-                Add to Cart
+              <button 
+                onClick={handleAddToCart}
+                disabled={isAddingToCart || isInCart}
+                className={`w-full py-2 px-4 rounded-full font-medium shadow-sm flex items-center justify-center ${
+                  isInCart
+                    ? 'bg-green-100 text-green-800 border border-green-200'
+                    : 'bg-white border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {isAddingToCart ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Adding to Cart...
+                  </>
+                ) : isInCart ? (
+                  <>
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Added to Cart
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Add to Cart
+                  </>
+                )}
               </button>
             </div>
 
